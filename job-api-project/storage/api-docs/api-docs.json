@@ -1,0 +1,793 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Portail Emploi RESTful",
+        "description": "API pour la recherche et la gestion d'offres d'emploi, avec gestion des rôles (Admin, Employeur, Utilisateur).",
+        "contact": {
+            "email": "contact@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Serveur API Principal"
+        }
+    ],
+    "paths": {
+        "/api/admin/users": {
+            "get": {
+                "tags": [
+                    "Admin - Users"
+                ],
+                "summary": "Liste tous les utilisateurs (Rôle : admin requis)",
+                "operationId": "adminGetUsers",
+                "responses": {
+                    "200": {
+                        "description": "Liste des utilisateurs."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/users/{user}": {
+            "get": {
+                "tags": [
+                    "Admin - Users"
+                ],
+                "summary": "Affiche les détails d'un utilisateur (Rôle : admin requis)",
+                "operationId": "adminShowUser",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID de l'utilisateur",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails de l'utilisateur."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin - Users"
+                ],
+                "summary": "Met à jour les informations d'un utilisateur (Rôle : admin requis)",
+                "operationId": "adminUpdateUser",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID de l'utilisateur",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur mis à jour."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin - Users"
+                ],
+                "summary": "Supprime un utilisateur (Rôle : admin requis)",
+                "operationId": "adminDeleteUser",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID de l'utilisateur",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Utilisateur supprimé."
+                    },
+                    "403": {
+                        "description": "Accès refusé (impossible de supprimer un admin)."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/users/{user}/roles": {
+            "put": {
+                "tags": [
+                    "Admin - Users"
+                ],
+                "summary": "Met à jour les rôles d'un utilisateur (Rôle : admin requis)",
+                "operationId": "adminUpdateUserRoles",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID de l'utilisateur",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "roles"
+                                ],
+                                "properties": {
+                                    "roles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "admin",
+                                                "employer",
+                                                "user"
+                                            ]
+                                        },
+                                        "example": [
+                                            "employer",
+                                            "user"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rôles mis à jour."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/applications/job-offers/{jobOffer}": {
+            "post": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Postuler à une offre d'emploi (Rôle : user requis)",
+                "operationId": "applyToJob",
+                "parameters": [
+                    {
+                        "name": "jobOffer",
+                        "in": "path",
+                        "description": "ID de l'offre d'emploi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "cover_letter": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Candidature soumise avec succès."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    },
+                    "409": {
+                        "description": "Déjà postulé."
+                    },
+                    "400": {
+                        "description": "Offre inactive."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/applications/mine": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Affiche les candidatures de l'utilisateur connecté (Rôle : user ou admin requis)",
+                "operationId": "getUserApplications",
+                "responses": {
+                    "200": {
+                        "description": "Liste des candidatures."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jobs/{jobOffer}/applications": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Affiche les candidatures pour une offre donnée (Rôle : employeur ou admin requis)",
+                "operationId": "getJobOfferApplications",
+                "parameters": [
+                    {
+                        "name": "jobOffer",
+                        "in": "path",
+                        "description": "ID de l'offre d'emploi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des candidatures pour l'offre."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/applications/{application}/status": {
+            "put": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Met à jour le statut d'une candidature (Rôle : employeur ou admin requis)",
+                "operationId": "updateApplicationStatus",
+                "parameters": [
+                    {
+                        "name": "application",
+                        "in": "path",
+                        "description": "ID de la candidature",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pending",
+                                            "reviewed",
+                                            "accepted",
+                                            "rejected"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Statut mis à jour avec succès."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Enregistrement d'un nouvel utilisateur",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Jane Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "jane.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret1234"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret1234"
+                                    },
+                                    "role": {
+                                        "description": "Rôle optionnel (user par défaut)",
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "employer"
+                                        ],
+                                        "example": "user"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Inscription réussie, retourne le jeton d'accès.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreurs de validation"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Connexion de l'utilisateur",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Connexion réussie, retourne le jeton d'accès.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Identifiants invalides"
+                    },
+                    "422": {
+                        "description": "Erreurs de validation"
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Déconnexion de l'utilisateur (révoque le jeton actuel)",
+                "operationId": "logoutUser",
+                "responses": {
+                    "200": {
+                        "description": "Déconnexion réussie."
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jobs": {
+            "get": {
+                "tags": [
+                    "Job Offers"
+                ],
+                "summary": "Affiche une liste paginée des offres d'emploi (recherche incluse)",
+                "operationId": "getJobOffersList",
+                "parameters": [
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "description": "Recherche par titre",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "company",
+                        "in": "query",
+                        "description": "Recherche par entreprise",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Recherche par localisation",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des offres d'emploi."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Job Offers"
+                ],
+                "summary": "Crée une nouvelle offre d'emploi (Rôle : employer ou admin requis)",
+                "operationId": "createJobOffer",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "company",
+                                    "location",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "company": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "contract_type": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "salary": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Offre créée avec succès."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    },
+                    "422": {
+                        "description": "Erreurs de validation"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jobs/{jobOffer}": {
+            "get": {
+                "tags": [
+                    "Job Offers"
+                ],
+                "summary": "Affiche une offre d'emploi spécifique",
+                "operationId": "getJobOfferById",
+                "parameters": [
+                    {
+                        "name": "jobOffer",
+                        "in": "path",
+                        "description": "ID de l'offre d'emploi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails de l'offre d'emploi."
+                    },
+                    "404": {
+                        "description": "Offre non trouvée ou inactive."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Job Offers"
+                ],
+                "summary": "Met à jour une offre d'emploi (Rôle : doit être l'employeur OU admin)",
+                "operationId": "updateJobOffer",
+                "parameters": [
+                    {
+                        "name": "jobOffer",
+                        "in": "path",
+                        "description": "ID de l'offre à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Offre mise à jour avec succès."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Job Offers"
+                ],
+                "summary": "Supprime une offre d'emploi (Rôle : doit être l'employeur OU admin)",
+                "operationId": "deleteJobOffer",
+                "parameters": [
+                    {
+                        "name": "jobOffer",
+                        "in": "path",
+                        "description": "ID de l'offre à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Offre supprimée avec succès."
+                    },
+                    "403": {
+                        "description": "Accès refusé."
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "Personal Access Token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Admin - Users",
+            "description": "Admin - Users"
+        },
+        {
+            "name": "Applications",
+            "description": "Applications"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Job Offers",
+            "description": "Job Offers"
+        }
+    ]
+}
