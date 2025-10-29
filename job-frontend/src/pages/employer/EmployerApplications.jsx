@@ -11,25 +11,8 @@ const EmployerApplications = () => {
 
   const fetchApplications = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/jobs');
-      // Pour chaque job, récupérer les applications
-      const jobsWithApplications = [];
-      for (const job of response.data.data || response.data) {
-        try {
-          const applicationsResponse = await axios.get(`http://localhost:8000/api/jobs/${job.id}/applications`);
-          jobsWithApplications.push({
-            ...job,
-            applications: applicationsResponse.data.data || applicationsResponse.data
-          });
-        } catch (error) {
-          console.error(`Error fetching applications for job ${job.id}:`, error);
-        }
-      }
-      // Aplatir les applications
-      const allApplications = jobsWithApplications.flatMap(job =>
-        (job.applications || []).map(app => ({ ...app, job }))
-      );
-      setApplications(allApplications);
+      const response = await axios.get('http://localhost:8000/api/applications/employer');
+      setApplications(response.data.data || response.data);
     } catch (error) {
       console.error('Error fetching applications:', error);
     } finally {
@@ -86,76 +69,89 @@ const EmployerApplications = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Candidatures reçues</h1>
-        <p className="text-gray-600 mt-2">Gérez les candidatures à vos offres</p>
-      </div>
+    <div style={{minHeight: '100vh', backgroundColor: '#f8f9fa'}}>
+      <div className="container" style={{padding: '2rem 0'}}>
+        <div style={{marginBottom: '2rem'}}>
+          <h1 style={{fontSize: '2.25rem', fontWeight: 'bold', color: '#111827'}}>Candidatures reçues</h1>
+          <p style={{color: '#6b7280', marginTop: '0.5rem'}}>Gérez les candidatures à vos offres</p>
+        </div>
 
-      {applications.length === 0 ? (
-        <div className="text-center py-12">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune candidature</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Vous n'avez pas encore reçu de candidatures.
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-          <ul className="divide-y divide-gray-200">
-            {applications.map((application) => (
-              <li key={application.id} className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {application.job.title}
-                      </h3>
-                      <span className={`ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
-                        {getStatusText(application.status)}
-                      </span>
+        {applications.length === 0 ? (
+          <div style={{textAlign: 'center', padding: '3rem'}}>
+            <svg style={{width: '3rem', height: '3rem', color: '#9ca3af', margin: '0 auto'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 style={{marginTop: '0.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#111827'}}>Aucune candidature</h3>
+            <p style={{marginTop: '0.25rem', fontSize: '0.875rem', color: '#6b7280'}}>
+              Vous n'avez pas encore reçu de candidatures.
+            </p>
+          </div>
+        ) : (
+          <div className="card">
+            <ul style={{listStyle: 'none', margin: 0, padding: 0}}>
+              {applications.map((application) => (
+                <li key={application.id} style={{padding: '1.5rem', borderBottom: '1px solid #e5e7eb'}}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <div style={{flex: 1}}>
+                      <div style={{display: 'flex', alignItems: 'center'}}>
+                        <h3 style={{fontSize: '1.125rem', fontWeight: '500', color: '#111827'}}>
+                          {application.job?.title || 'Offre inconnue'}
+                        </h3>
+                        <span style={{
+                          marginLeft: '0.75rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '0.125rem 0.625rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          ...getStatusColor(application.status)
+                        }}>
+                          {getStatusText(application.status)}
+                        </span>
+                      </div>
+                      <div style={{marginTop: '0.25rem', fontSize: '0.875rem', color: '#6b7280'}}>
+                        Candidat: <span style={{fontWeight: '500'}}>{application.user?.name || 'N/A'}</span>
+                        <span style={{margin: '0 0.5rem'}}>•</span>
+                        <span>{application.user?.email || 'N/A'}</span>
+                      </div>
+                      <div style={{marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280'}}>
+                        Postulé le {new Date(application.created_at).toLocaleDateString('fr-FR')}
+                      </div>
                     </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      Candidat: <span className="font-medium">{application.user.name}</span>
-                      <span className="mx-2">•</span>
-                      <span>{application.user.email}</span>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      Postulé le {new Date(application.created_at).toLocaleDateString('fr-FR')}
+                    <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                      {application.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => updateApplicationStatus(application.id, 'accepted')}
+                            className="btn btn-success"
+                            style={{padding: '0.25rem 0.75rem', fontSize: '0.875rem'}}
+                          >
+                            Accepter
+                          </button>
+                          <button
+                            onClick={() => updateApplicationStatus(application.id, 'rejected')}
+                            className="btn btn-danger"
+                            style={{padding: '0.25rem 0.75rem', fontSize: '0.875rem'}}
+                          >
+                            Refuser
+                          </button>
+                        </>
+                      )}
+                      {application.status === 'accepted' && (
+                        <span style={{color: '#16a34a', fontWeight: '500', fontSize: '0.875rem'}}>Acceptée</span>
+                      )}
+                      {application.status === 'rejected' && (
+                        <span style={{color: '#dc2626', fontWeight: '500', fontSize: '0.875rem'}}>Refusée</span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    {application.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => updateApplicationStatus(application.id, 'accepted')}
-                          className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                        >
-                          Accepter
-                        </button>
-                        <button
-                          onClick={() => updateApplicationStatus(application.id, 'rejected')}
-                          className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
-                        >
-                          Refuser
-                        </button>
-                      </>
-                    )}
-                    {application.status === 'accepted' && (
-                      <span className="text-green-600 font-medium text-sm">Acceptée</span>
-                    )}
-                    {application.status === 'rejected' && (
-                      <span className="text-red-600 font-medium text-sm">Refusée</span>
-                    )}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

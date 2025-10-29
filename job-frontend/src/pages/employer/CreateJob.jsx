@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const CreateJob = () => {
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -13,7 +14,25 @@ const CreateJob = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (id) {
+      setIsEditing(true);
+      fetchJob();
+    }
+  }, [id]);
+
+  const fetchJob = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/jobs/${id}`);
+      setFormData(response.data);
+    } catch (error) {
+      console.error('Error fetching job:', error);
+      setError('Erreur lors du chargement de l\'offre');
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -28,146 +47,201 @@ const CreateJob = () => {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:8000/api/jobs', formData);
+      if (isEditing) {
+        await axios.put(`http://localhost:8000/api/jobs/${id}`, formData);
+      } else {
+        await axios.post('http://localhost:8000/api/jobs', formData);
+      }
+      // Redirection vers la page des offres employeur
       navigate('/employer/jobs');
     } catch (error) {
-      console.error('Error creating job:', error);
-      setError('Erreur lors de la création de l\'offre');
+      console.error('Error saving job:', error);
+      setError(isEditing ? 'Erreur lors de la modification de l\'offre' : 'Erreur lors de la création de l\'offre');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Créer une offre d'emploi</h1>
-        <p className="text-gray-600 mt-2">Remplissez les informations de votre offre</p>
-      </div>
+    <div style={{minHeight: '100vh', backgroundColor: '#f8f9fa'}}>
+      <div className="container" style={{padding: '2rem 0', maxWidth: '48rem', margin: '0 auto'}}>
+        <div style={{marginBottom: '2rem'}}>
+          <h1 style={{fontSize: '2.25rem', fontWeight: 'bold', color: '#111827'}}>
+            {isEditing ? 'Modifier l\'offre d\'emploi' : 'Créer une offre d\'emploi'}
+          </h1>
+          <p style={{color: '#6b7280', marginTop: '0.5rem'}}>
+            {isEditing ? 'Modifiez les informations de votre offre' : 'Remplissez les informations de votre offre'}
+          </p>
+        </div>
 
-      <div className="bg-white shadow-sm rounded-lg p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+        <div className="card">
+          <form onSubmit={handleSubmit} style={{display: 'grid', gap: '1.5rem'}}>
+            {error && (
+              <div className="alert alert-error">
+                {error}
+              </div>
+            )}
+
+            <div className="form-group">
+              <label htmlFor="title" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                Titre du poste *
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                required
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s'
+                }}
+                placeholder="Ex: Développeur Full Stack"
+                value={formData.title}
+                onChange={handleChange}
+              />
             </div>
-          )}
 
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Titre du poste *
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Ex: Développeur Full Stack"
-              value={formData.title}
-              onChange={handleChange}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="company" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                Entreprise *
+              </label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                required
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s'
+                }}
+                placeholder="Nom de votre entreprise"
+                value={formData.company}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
-              Entreprise *
-            </label>
-            <input
-              type="text"
-              id="company"
-              name="company"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Nom de votre entreprise"
-              value={formData.company}
-              onChange={handleChange}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="location" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                Localisation *
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                required
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s'
+                }}
+                placeholder="Ville, Pays"
+                value={formData.location}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-              Localisation *
-            </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Ville, Pays"
-              value={formData.location}
-              onChange={handleChange}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="type" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                Type de contrat *
+              </label>
+              <select
+                id="type"
+                name="type"
+                required
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s'
+                }}
+                value={formData.type}
+                onChange={handleChange}
+              >
+                <option value="full-time">Temps plein</option>
+                <option value="part-time">Temps partiel</option>
+                <option value="contract">CDD</option>
+                <option value="freelance">Freelance</option>
+              </select>
+            </div>
 
-          <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-              Type de contrat *
-            </label>
-            <select
-              id="type"
-              name="type"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              value={formData.type}
-              onChange={handleChange}
-            >
-              <option value="full-time">Temps plein</option>
-              <option value="part-time">Temps partiel</option>
-              <option value="contract">CDD</option>
-              <option value="freelance">Freelance</option>
-            </select>
-          </div>
+            <div className="form-group">
+              <label htmlFor="salary" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                Salaire
+              </label>
+              <input
+                type="text"
+                id="salary"
+                name="salary"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s'
+                }}
+                placeholder="Ex: 35 000€ - 45 000€ par an"
+                value={formData.salary}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-1">
-              Salaire
-            </label>
-            <input
-              type="text"
-              id="salary"
-              name="salary"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Ex: 35 000€ - 45 000€ par an"
-              value={formData.salary}
-              onChange={handleChange}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="description" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                Description du poste *
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                required
+                rows={6}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  fontSize: '1rem',
+                  transition: 'border-color 0.2s',
+                  resize: 'vertical'
+                }}
+                placeholder="Décrivez le poste, les missions, les compétences requises..."
+                value={formData.description}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Description du poste *
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              required
-              rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Décrivez le poste, les missions, les compétences requises..."
-              value={formData.description}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={() => navigate('/employer/jobs')}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Création...' : 'Créer l\'offre'}
-            </button>
-          </div>
-        </form>
+            <div style={{display: 'flex', justifyContent: 'flex-end', gap: '0.75rem'}}>
+              <button
+                type="button"
+                onClick={() => navigate('/employer/jobs')}
+                className="btn btn-secondary"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary"
+                style={{opacity: loading ? 0.5 : 1}}
+              >
+                {loading ? (isEditing ? 'Modification...' : 'Création...') : (isEditing ? 'Modifier l\'offre' : 'Créer l\'offre')}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

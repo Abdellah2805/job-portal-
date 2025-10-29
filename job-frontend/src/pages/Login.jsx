@@ -27,13 +27,19 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const result = await login(formData.email, formData.password);
-
-    if (!result.success) {
-      setError(result.error);
+    try {
+      const result = await login(formData.email, formData.password);
+      
+      if (result.success) {
+        // La redirection sera gérée par AuthContext
+      } else {
+        setError(result.error);
+      }
+    } catch (error) {
+      setError('Une erreur est survenue lors de la connexion');
+    } finally {
       setLoading(false);
     }
-    
   };
 
   return (

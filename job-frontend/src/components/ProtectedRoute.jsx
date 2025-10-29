@@ -1,8 +1,8 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+const ProtectedRoute = ({ allowedRoles = [] }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -14,19 +14,17 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }
 
   if (!user) {
-    // ✅ CORRECTION : Le chemin de redirection doit être /connexion
-    return <Navigate to="/connexion" replace />;
+    return <Navigate to="/connexion" state={{ from: window.location.pathname }} replace />;
   }
 
-  // NOTE : J'ai mis à jour cette logique pour simplifier la vérification.
-  // Elle gère maintenant correctement les rôles comme 'user' (candidat) vs 'employer'
-  const isAuthorized = allowedRoles.length === 0 || allowedRoles.some(role => user.roles?.includes(role));
+  const userRoles = Array.isArray(user.roles) ? user.roles : [user.roles].filter(Boolean);
+  const isAuthorized = allowedRoles.length === 0 || allowedRoles.some(role => userRoles.includes(role));
 
   if (!isAuthorized) {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

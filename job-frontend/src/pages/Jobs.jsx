@@ -52,95 +52,119 @@ const Jobs = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Offres d'emploi</h1>
+    <div style={{minHeight: '100vh', backgroundColor: '#f8f9fa'}}>
+      <div className="container" style={{padding: '2rem 0'}}>
+        <div style={{marginBottom: '2rem'}}>
+          <h1 style={{fontSize: '2.25rem', fontWeight: 'bold', color: '#111827', marginBottom: '1rem'}}>Offres d'emploi</h1>
 
-        {/* Search and Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Recherche
-              </label>
-              <input
-                type="text"
-                placeholder="Titre, mots-clés..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Localisation
-              </label>
-              <input
-                type="text"
-                placeholder="Ville, région..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Entreprise
-              </label>
-              <input
-                type="text"
-                placeholder="Nom de l'entreprise..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                value={companyFilter}
-                onChange={(e) => setCompanyFilter(e.target.value)}
-              />
+          {/* Search and Filters */}
+          <div className="card">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="form-group">
+                <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                  Recherche
+                </label>
+                <input
+                  type="text"
+                  placeholder="Titre, mots-clés..."
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '1rem',
+                    transition: 'border-color 0.2s'
+                  }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                  Localisation
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ville, région..."
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '1rem',
+                    transition: 'border-color 0.2s'
+                  }}
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label style={{display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151'}}>
+                  Entreprise
+                </label>
+                <input
+                  type="text"
+                  placeholder="Nom de l'entreprise..."
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '1rem',
+                    transition: 'border-color 0.2s'
+                  }}
+                  value={companyFilter}
+                  onChange={(e) => setCompanyFilter(e.target.value)}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Jobs List */}
-      <div className="space-y-6">
-        {filteredJobs.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">Aucune offre trouvée</p>
-          </div>
-        ) : (
-          filteredJobs.map((job) => (
-            <div key={job.id} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                    {job.title}
-                  </h2>
-                  <div className="flex items-center text-gray-600 mb-3">
-                    <span className="font-medium">{job.company}</span>
-                    <span className="mx-2">•</span>
-                    <span>{job.location}</span>
-                    <span className="mx-2">•</span>
-                    <span>{job.type}</span>
+        {/* Jobs List */}
+        <div style={{display: 'grid', gap: '1.5rem'}}>
+          {filteredJobs.length === 0 ? (
+            <div style={{textAlign: 'center', padding: '3rem'}}>
+              <p style={{color: '#6b7280', fontSize: '1.125rem'}}>Aucune offre trouvée</p>
+            </div>
+          ) : (
+            filteredJobs.map((job) => (
+              <div key={job.id} className="card" style={{cursor: 'pointer'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                  <div style={{flex: 1}}>
+                    <h2 style={{fontSize: '1.25rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem'}}>
+                      {job.title}
+                    </h2>
+                    <div style={{display: 'flex', alignItems: 'center', color: '#6b7280', marginBottom: '0.75rem'}}>
+                      <span style={{fontWeight: '500'}}>{job.company}</span>
+                      <span style={{margin: '0 0.5rem'}}>•</span>
+                      <span>{job.location}</span>
+                      <span style={{margin: '0 0.5rem'}}>•</span>
+                      <span>{job.type}</span>
+                    </div>
+                    <p style={{color: '#374151', marginBottom: '1rem', lineHeight: '1.6'}}>
+                      {job.description}
+                    </p>
+                    <div style={{display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: '#6b7280'}}>
+                      <span>Publié le {new Date(job.created_at).toLocaleDateString('fr-FR')}</span>
+                      <span style={{margin: '0 0.5rem'}}>•</span>
+                      <span>Salaire: {job.salary || 'Non spécifié'}</span>
+                    </div>
                   </div>
-                  <p className="text-gray-700 mb-4 line-clamp-3">
-                    {job.description}
-                  </p>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <span>Publié le {new Date(job.created_at).toLocaleDateString('fr-FR')}</span>
-                    <span className="mx-2">•</span>
-                    <span>Salaire: {job.salary || 'Non spécifié'}</span>
+                  <div style={{marginLeft: '1.5rem'}}>
+                    <button
+                      onClick={() => applyForJob(job.id)}
+                      className="btn btn-primary"
+                      style={{padding: '0.5rem 1.5rem'}}
+                    >
+                      Postuler
+                    </button>
                   </div>
-                </div>
-                <div className="ml-6">
-                  <button
-                    onClick={() => applyForJob(job.id)}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    Postuler
-                  </button>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

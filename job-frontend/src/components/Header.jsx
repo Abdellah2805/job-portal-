@@ -8,32 +8,25 @@ const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/'); 
+  const handleLogout = () => {
+    logout();
   };
 
-  /**
-   * Détermine le chemin de redirection principal pour l'utilisateur connecté ("Mon Espace").
-   */
   const getDashboardLink = () => {
-    if (!user || !user.roles) return '/';
+    if (!user?.roles) return '/';
     
-    // Rendre le rôle robuste pour la vérification
     const userRoles = Array.isArray(user.roles) 
-                      ? user.roles 
-                      : [user.roles].filter(Boolean);
+      ? user.roles 
+      : [user.roles].filter(Boolean);
 
-    // ✅ Règle: L'employeur est renvoyé à son tableau de bord
-    if (userRoles.includes('employer')) { 
-      return '/employer/jobs';
+    if (userRoles.includes('employer')) {
+      return '/employer/dashboard';
     }
     if (userRoles.includes('admin')) {
       return '/admin/dashboard';
     }
     
-    // Rôle par défaut (candidat ou 'user') va sur la page des candidatures
-    return '/my-applications'; 
+    return '/my-applications';
   };
 
   return (

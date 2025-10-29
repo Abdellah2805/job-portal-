@@ -81,7 +81,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div>
+    <div style={{minHeight: '100vh', backgroundColor: '#f8f9fa'}}>
       {/* Hero Section pour Admin */}
       <section style={{
         background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
             <button className="btn btn-secondary">
               Gérer les offres
             </button>
-            <button className="btn" style={{backgroundColor: '#dc2626', color: 'white'}}>
+            <button className="btn btn-danger">
               Modérer la plateforme
             </button>
           </div>
@@ -264,12 +264,14 @@ const AdminDashboard = () => {
                         {user.email}
                       </td>
                       <td style={{padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#6b7280'}}>
-                        {user.roles?.join(', ') || 'N/A'}
+                        {Array.isArray(user.roles) ? user.roles.map(role => typeof role === 'object' ? role.name : role).join(', ') : (user.roles || 'N/A')}
                       </td>
                       <td style={{padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#6b7280'}}>
                         <button
                           onClick={() => deleteUser(user.id)}
-                          style={{color: '#dc2626', textDecoration: 'none'}}
+                          style={{color: '#dc2626', textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer'}}
+                          onMouseEnter={(e) => e.target.style.color = '#b91c1c'}
+                          onMouseLeave={(e) => e.target.style.color = '#dc2626'}
                         >
                           Supprimer
                         </button>
@@ -335,7 +337,9 @@ const AdminDashboard = () => {
                       <td style={{padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#6b7280'}}>
                         <button
                           onClick={() => deleteJob(job.id)}
-                          style={{color: '#dc2626', textDecoration: 'none'}}
+                          style={{color: '#dc2626', textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer'}}
+                          onMouseEnter={(e) => e.target.style.color = '#b91c1c'}
+                          onMouseLeave={(e) => e.target.style.color = '#dc2626'}
                         >
                           Supprimer
                         </button>

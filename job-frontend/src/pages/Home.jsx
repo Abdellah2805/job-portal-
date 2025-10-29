@@ -49,9 +49,9 @@ const Home = () => {
                     </Link>
                   </>
                 )}
-                
+
                 {/* OPTIONS POUR EMPLOYEUR */}
-                {user.roles?.includes('employeur') && (
+                {user.roles?.includes('employer') && (
                   <>
                     <Link to="/employer/jobs" className="btn btn-primary">
                       Gérer mes offres

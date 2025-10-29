@@ -22,13 +22,15 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user()->load('roles');
     });
 
+    Route::get('jobs/mine', [JobOfferController::class, 'myJobs']);
     Route::post('jobs', [JobOfferController::class, 'store']);
     Route::put('jobs/{jobOffer}', [JobOfferController::class, 'update']);
     Route::delete('jobs/{jobOffer}', [JobOfferController::class, 'destroy']);
 
     Route::post('applications/job-offers/{jobOffer}', [ApplicationController::class, 'store']);
-    Route::get('applications/mine', [ApplicationController::class, 'userApplications']); 
-    Route::get('jobs/{jobOffer}/applications', [ApplicationController::class, 'jobApplications']); 
+    Route::get('applications/mine', [ApplicationController::class, 'userApplications']);
+    Route::get('applications/employer', [ApplicationController::class, 'employerApplications']);
+    Route::get('jobs/{jobOffer}/applications', [ApplicationController::class, 'jobApplications']);
     Route::put('applications/{application}/status', [ApplicationController::class, 'updateStatus']);
 
     

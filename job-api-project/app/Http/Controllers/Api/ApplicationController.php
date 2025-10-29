@@ -92,6 +92,35 @@ class ApplicationController extends Controller
 
     /**
      * @OA\Get(
+     * path="/api/applications/employer",
+     * operationId="getEmployerApplications",
+     * tags={"Applications"},
+     * summary="Affiche toutes les candidatures reçues par l'employeur connecté",
+     * security={{"bearerAuth":{}}},
+     * @OA\Response(response=200, description="Liste des candidatures reçues."),
+     * @OA\Response(response=403, description="Accès refusé.")
+     * )
+     */
+    public function employerApplications(Request $request)
+    {
+        $user = $request->user();
+
+        if (! $user->can('view-applications')) {
+            return response()->json(['message' => 'Accès refusé. Vous n\'avez pas la permission de voir les candidatures.'], 403);
+        }
+
+        $applications = Application::whereHas('jobOffer', function ($query) use ($user) {
+            $query->where('employer_id', $user->id);
+        })
+        ->with(['jobOffer:id,title,company,location,type,salary', 'user:id,name,email'])
+        ->latest()
+        ->get();
+
+        return response()->json($applications);
+    }
+
+    /**
+     * @OA\Get(
      * path="/api/jobs/{jobOffer}/applications",
      * operationId="getJobOfferApplications",
      * tags={"Applications"},
@@ -105,11 +134,11 @@ class ApplicationController extends Controller
     public function jobApplications(Request $request, JobOffer $jobOffer)
     {
         $user = $request->user();
-        
+
         if ($jobOffer->employer_id !== $user->id && ! $user->hasRole('admin')) {
             return response()->json(['message' => 'Accès refusé. Vous ne pouvez voir les candidatures que pour vos propres offres.'], 403);
         }
-        
+
         $applications = $jobOffer->applications()->with('user:id,name,email')->latest()->paginate(10);
 
         return response()->json($applications);

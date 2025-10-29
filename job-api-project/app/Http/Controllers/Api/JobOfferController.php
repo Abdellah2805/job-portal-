@@ -155,6 +155,36 @@ class JobOfferController extends Controller
     }
 
     /**
+     * @OA\Get(
+     * path="/api/jobs/mine",
+     * operationId="getMyJobOffers",
+     * tags={"Job Offers"},
+     * summary="Affiche les offres d'emploi de l'employeur connecté",
+     * security={{"bearerAuth":{}}},
+     * @OA\Response(response=200, description="Liste des offres de l'employeur."),
+     * @OA\Response(response=403, description="Accès refusé.")
+     * )
+     */
+    public function myJobs(Request $request)
+    {
+        $user = $request->user();
+
+        Log::debug();
+        if (! $request->user()->can('create-job')) {
+            return response()->json(['message' => 'Accès refusé.'], 403);
+        }
+
+        // $offers = JobOffer::where('employer_id', $user->id)
+        //     ->withCount('applications')
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
+
+        return response()->json([
+            'data' => $user
+        ]);
+    }
+
+    /**
      * @OA\Delete(
      * path="/api/jobs/{jobOffer}",
      * operationId="deleteJobOffer",
@@ -169,7 +199,7 @@ class JobOfferController extends Controller
     public function destroy(Request $request, JobOffer $jobOffer)
     {
         $user = $request->user();
-        
+
         if ($jobOffer->employer_id !== $user->id && ! $user->hasRole('admin')) {
             return response()->json(['message' => 'Accès refusé. Vous ne pouvez supprimer que vos propres offres d\'emploi.'], 403);
         }
